@@ -12,9 +12,10 @@ box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:en
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:"Segoe UI",system-ui,-apple-system,Arial,sans-serif;font-size:18px;line-height:1.45}
-.wrap{max-width:680px;margin:0 auto;padding:14px}
-.top{display:flex;justify-content:space-between;align-items:center;font-weight:700;margin-bottom:10px}
-.pill{background:var(--card);border:2px solid var(--line);border-radius:99px;padding:4px 14px}
+.wrap{max-width:700px;margin:0 auto;padding:14px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:8px;font-weight:700;margin-bottom:10px}
+.pill{background:var(--card);color:var(--ink);border:2px solid var(--line);border-radius:99px;padding:4px 14px;font:inherit;font-weight:700}
+button.pill{cursor:pointer}
 .bar{height:10px;background:var(--line);border-radius:9px;overflow:hidden;margin-bottom:14px}
 .bar i{display:block;height:100%;background:var(--acc);width:0;transition:width .4s}
 .card{background:var(--card);border:2px solid var(--line);border-radius:20px;padding:18px;margin-bottom:14px}
@@ -29,7 +30,6 @@ mark{background:var(--hl);color:inherit;border-radius:6px;padding:0 6px;font-wei
 @keyframes sh{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
 @keyframes pop{0%{transform:scale(.6);opacity:0}100%{transform:scale(1);opacity:1}}
 .btn{background:var(--acc);color:var(--accink);border:0;border-radius:14px;padding:12px 20px;font:inherit;font-weight:700;cursor:pointer;margin:4px 4px 0 0}
-.btn.alt{background:var(--card);color:var(--ink);border:2px solid var(--line)}
 .opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
 .opt{background:var(--card);color:var(--ink);border:2px solid var(--line);border-radius:14px;padding:14px;font:inherit;font-size:22px;font-weight:700;cursor:pointer}
 .opt.ok{background:var(--ok);color:#fff;border-color:var(--ok)}
@@ -45,39 +45,76 @@ mark{background:var(--hl);color:inherit;border-radius:6px;padding:0 6px;font-wei
 .stage .t{background:var(--hl);border-radius:16px;padding:2px 14px}
 .robo{animation:hop .6s 2}.confused{animation:sh .4s 2}
 @keyframes hop{50%{transform:translateY(-16px)}}
+/* Level 3: big and decorated */
+.c3{border:4px solid #ff7a59;box-shadow:0 6px 0 #ff7a59;position:relative;overflow:hidden}
+.c3 .ban{margin:-18px -18px 14px;padding:10px 18px;background:linear-gradient(90deg,#ff7a59,#ffb703);color:#2b2540;font-weight:800;font-size:22px;display:flex;justify-content:space-between}
+.c3 .deco{position:absolute;right:10px;bottom:6px;font-size:30px;opacity:.35;letter-spacing:6px}
+.c3 .av{font-size:76px;line-height:1;background:var(--hl);border-radius:50%;width:104px;height:104px;display:flex;align-items:center;justify-content:center;flex:none}
+.c3 .say{font-size:30px;font-weight:600;line-height:1.35;border:3px solid #6c4de6;border-radius:22px;position:relative;padding:14px 18px}
+.c3 .who{display:inline-block;background:#6c4de6;color:#fff;border-radius:99px;padding:0 14px;font-size:20px;font-weight:800;margin-bottom:6px}
+.c3 .blank{min-width:100px;font-size:34px;border-bottom-width:5px;color:#e0457b}
+.c3 .pic{font-size:72px;text-align:center;margin:6px 0 0}
+.c3 .ask{font-size:22px;font-weight:700;text-align:center;margin:6px 0 0}
+.c3 .opt{font-size:34px;padding:18px 10px;border-width:4px;border-radius:20px}
+.c3 .o0{border-color:#ff7a59;box-shadow:0 4px 0 #ff7a59}.c3 .o1{border-color:#2ec4b6;box-shadow:0 4px 0 #2ec4b6}
+.c3 .o2{border-color:#6c4de6;box-shadow:0 4px 0 #6c4de6}.c3 .o3{border-color:#f4a000;box-shadow:0 4px 0 #f4a000}
+.c3 .opt:active{transform:translateY(3px);box-shadow:none}
+.c3 .fb{font-size:24px}
+/* Bigger question sentences so the whole class can read them */
+.wrap{max-width:880px}
+.sent{font-size:32px;line-height:1.4}
+.tok{font-size:32px;padding:4px 12px}
+.say{font-size:32px;line-height:1.35}
+.blank{min-width:90px}
+.opt{font-size:28px}
+.c3 .say{font-size:36px}
+.c3 .blank{font-size:38px}
 </style>
 </head>
 <body>
 <div class="wrap">
-<div class="top"><span class="pill" id="lv">🕵️ Pronoun Detectives</span><span class="pill" id="stars">⭐ 0</span></div>
+<div class="top"><span class="pill" id="lv">🕵️ Pronoun Detectives</span><span><button class="pill" id="snd" onclick="toggleSnd()" aria-label="Sound">🔊</button> <span class="pill" id="stars">⭐ 0</span></span></div>
 <div class="bar"><i id="pg"></i></div>
 <div id="app"></div>
 </div>
 <script>
 const $=s=>document.querySelector(s),app=$("#app");
-let stars=0,nb=[];
+let stars=0,nb=[],snd=true,ac;
 const shuffle=a=>a.map(x=>[Math.random(),x]).sort((p,q)=>p[0]-q[0]).map(x=>x[1]);
 function addStars(n){stars+=n;$("#stars").textContent="⭐ "+stars}
-function head(lv,txt,p){$("#lv").textContent=txt;$("#pg").style.width=p+"%"}
+function head(t,p){$("#lv").textContent=t;$("#pg").style.width=p+"%"}
+function toggleSnd(){snd=!snd;$("#snd").textContent=snd?"🔊":"🔇"}
+function sfx(ok){
+if(!snd)return;
+try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();
+const seq=ok===2?[[523,0],[659,.12],[784,.24],[1047,.36],[784,.5],[1047,.62]]:ok?[[660,0],[880,.11],[1175,.22]]:[[260,0],[190,.14],[130,.28]];
+seq.forEach(([f,t])=>{const o=ac.createOscillator(),g=ac.createGain(),n=ac.currentTime+t;
+o.type=ok?"triangle":"sawtooth";o.frequency.value=f;g.gain.setValueAtTime(.2,n);g.gain.exponentialRampToValueAtTime(.001,n+.24);
+o.connect(g);g.connect(ac.destination);o.start(n);o.stop(n+.25)})}catch(e){}}
 
 function intro(){
-head(0,"🕵️ Pronoun Detectives",0);
+head("🕵️ Pronoun Detectives",0);
 app.innerHTML=`<div class="card"><div class="big">🕵️‍♀️🔍</div><h1>Pronoun Detectives</h1>
 <p>Welcome, detective! There are secret words hiding in English sentences.<br>
 <span class="mute">Find the secret words and discover the rule yourself!</span></p>
-<p>🔎 Level 1: Find the clues<br>🤖 Level 2: Robo Helper<br>💬 Level 3: Help your friends<br>🗣️ Level 4: Talk with a partner</p>
-<button class="btn" onclick="l1(0)">Start the mission</button></div>`}
+<p>🔎 Level 1: Find the clues<br>🤖 Level 2: Robo Helper<br>💬 Level 3: Help your friends</p>
+<button class="btn" onclick="sfx(true);l1(0)">Start the mission</button></div>`}
 
-/* LEVEL 1: discover */
+/* LEVEL 1 */
 const EX=[
 ["Mia likes <mark>Tom</mark> very much.","Mia likes him very much.","him","He"],
 ["Every day, Tom helps <mark>Mia</mark>.","Every day, Tom helps her.","her","She"],
 ["The kids give <mark>the dog</mark> a bone.","The kids give it a bone.","it","It"],
 ["Mum takes <mark>Ali and me</mark> to school.","Mum takes us to school.","us","We"],
 ["Our teacher likes <mark>Ali and Ece</mark>.","Our teacher likes them.","them","They"],
-["Mia says: “Tom calls <mark>Mia</mark> every day.”","Mia says: “Tom calls me every day.”","me","I"]];
+["Mia says: “Tom calls <mark>Mia</mark> every day.”","Mia says: “Tom calls me every day.”","me","I"],
+["We often visit <mark>Grandpa</mark> on Sundays.","We often visit him on Sundays.","him","He"],
+["Dad buys <mark>the cake</mark> at the market.","Dad buys it at the market.","it","It"],
+["Ece waits for <mark>Ali and me</mark> at the gate.","Ece waits for us at the gate.","us","We"],
+["The boys play with <mark>the girls</mark> at school.","The boys play with them at school.","them","They"],
+["Our neighbour gives <mark>Ece</mark> a cake.","Our neighbour gives her a cake.","her","She"]];
 function l1(i){
-head(1,"🔎 Level 1 · Clues",5+i*8);
+head("🔎 Level 1 · Clues",2+i*(30/EX.length));
 if(i>=EX.length)return l1rule();
 const [a,b,p,s]=EX[i];
 const toks=b.split(" ").map(w=>`<button class="tok" data-w="${w.replace(/[.,!?“”:]/g,"")}">${w}</button>`).join("");
@@ -87,13 +124,13 @@ app.innerHTML=`<div class="card"><h2>Clue ${i+1} of ${EX.length}</h2>
 <div id="nxt"></div></div>
 <div class="card"><h2>📒 Detective notebook</h2><div class="nb">${nb.map(x=>`<span class="chip">${x}</span>`).join("")||'<span class="mute">Empty… find your first clue!</span>'}</div></div>`;
 document.querySelectorAll(".tok").forEach(t=>t.onclick=()=>{
-if(t.dataset.w===p){t.classList.add("ok");$("#fb").textContent="✅ Great! “"+p+"” replaces the yellow words.";
-nb.push(s+" → "+p);addStars(1);document.querySelectorAll(".tok").forEach(x=>x.onclick=null);
+if(t.dataset.w===p){sfx(true);t.classList.add("ok");$("#fb").textContent="✅ Great! “"+p+"” replaces the yellow words.";
+const row=s+" → "+p;if(!nb.includes(row))nb.push(row);addStars(1);document.querySelectorAll(".tok").forEach(x=>x.onclick=null);
 $("#nxt").innerHTML=`<button class="btn" onclick="l1(${i+1})">Next clue ➜</button>`}
-else{t.classList.add("no");$("#fb").textContent="Hmm, try again! 🤔";setTimeout(()=>t.classList.remove("no"),400)}})}
+else{sfx(false);t.classList.add("no");$("#fb").textContent="Hmm, try again! 🤔";setTimeout(()=>t.classList.remove("no"),400)}})}
 
 function l1rule(){
-head(1,"🔎 Level 1 · Rule",50);
+head("🔎 Level 1 · Rule",33);
 app.innerHTML=`<div class="card"><h2>📒 Look at your notebook</h2><div class="nb">${nb.map(x=>`<span class="chip">${x}</span>`).join("")}</div>
 <p class="sent" style="margin-top:14px">Where do <mark>me, him, her, it, us, them</mark> go in the sentences?</p>
 <div class="opts" style="grid-template-columns:1fr">
@@ -102,27 +139,32 @@ app.innerHTML=`<div class="card"><h2>📒 Look at your notebook</h2><div class="
 <button class="opt" data-c="0">Before the verb: <i>Mia him likes.</i></button></div>
 <div class="fb" id="fb"></div><div id="nxt"></div></div>`;
 document.querySelectorAll(".opt").forEach(o=>o.onclick=()=>{
-if(o.dataset.c==="1"){o.classList.add("ok");addStars(2);
-$("#fb").innerHTML="🎉 You found the rule! <b>Object pronouns</b> come <b>after the verb</b>.<br><span class='mute'>Bonus: “you” is the same → I see <b>you</b>. 😉</span>";
+if(o.dataset.c==="1"){sfx(true);o.classList.add("ok");addStars(2);
+$("#fb").innerHTML="🎉 You found the rule! <b>Object pronouns</b> come <b>after the verb</b>.<br><span class='mute'>Bonus: “you” stays the same → I see <b>you</b>. 😉</span>";
+document.querySelectorAll(".opt").forEach(x=>x.onclick=null);
 $("#nxt").innerHTML=`<button class="btn" onclick="l2()">Level 2 ➜</button>`}
-else{o.classList.add("no");$("#fb").textContent="Check the example sentences again! 🔎"}})}
+else{sfx(false);o.classList.add("no");$("#fb").textContent="Check the example sentences again! 🔎"}})}
 
-/* LEVEL 2: match */
+/* LEVEL 2: Robo Helper */
 const ALL=["me","you","him","her","it","us","them"];
-/* [target emoji, target label, speaker emoji, speaker, sentence, fx, answer, result] */
 const R=[
 ["🐶","the dog","👦","Ali","Robo, please wash ___!","🫧","it","Robo washes it! 🫧"],
 ["👧","Ece","👦","Ali","Robo, please call ___!","📞","her","Robo calls her! 📞"],
 ["👦👧","Tom and Ece","👩‍🏫","Teacher","Tom and Ece are lost. Robo, please help ___!","🤝","them","Robo helps them! 🤝"],
-["👦","Ali himself (he points to his chest 👆)","👦","Ali","Robo, please hug ___!","🤗","me","Ali: “Robo hugs me!” 🤗"],
+["👦","Ali himself (he points to his chest 👆)","👦","Ali","Robo, please take a photo of ___!","📸","me","Ali: “Robo takes a photo of me!” 📸"],
 ["👧👦","Ece and Ali (Ece points to both of them 👆)","👧","Ece","Ali and I are tired. Robo, please carry ___!","🎒","us","Ece: “Robo carries us!” 🎒"],
-["🤖","Robo","👦","Ali","Robo, you are my best friend. I love ___!","💙","you","Robo: “I love you too!” 💙"],
-["👨‍🦳","Mr. Tan","👨","Dad","Mr. Tan is old. Robo, please follow ___ to the market.","🛒","him","Robo follows him! 🛒"]];
+["🤖","Robo","👦","Ali","Robo, you are a great helper. Thank ___!","⭐","you","Robo: “You’re welcome!” ⭐"],
+["👨‍🦳","Mr. Tan","👨","Dad","Mr. Tan is old. Robo, please follow ___ to the market.","🛒","him","Robo follows him! 🛒"],
+["🍎🍎","the apples","👩","Mum","The apples are dirty. Robo, please wash ___!","🫧","them","Robo washes them! 🫧"],
+["👩","Mrs. Ela","👧","Ece","Mrs. Ela is at the door. Robo, please open the door for ___!","🚪","her","Robo opens the door for her! 🚪"],
+["📘","the book","👩‍🏫","Teacher","Here is the book. Robo, please give ___ to Ece!","📘","it","Robo gives it to Ece! 📘"],
+["👦","Ali himself (he points to his chest 👆)","👦","Ali","I can’t open this box. Robo, please help ___!","📦","me","Ali: “Robo helps me!” 📦"],
+["🤖","Robo","👧","Ece","Robo, it is dark. I can’t see ___! Where are you?","🔦","you","Robo: “I’m here!” 🙋"]];
 let rq=[],ri=0;
 function l2(){rq=shuffle(R);ri=0;l2r()}
 function l2r(){
-head(2,"🤖 Level 2 · Robo Helper",52+ri*3);
-if(ri>=rq.length){app.innerHTML=`<div class="card"><div class="big">🤖💙</div><h2>Robo is happy!</h2><p>You gave Robo the right orders. Now help your friends in a real chat.</p><button class="btn" onclick="l3(0)">Level 3 ➜</button></div>`;return}
+head("🤖 Level 2 · Robo Helper",35+ri*(33/rq.length));
+if(ri>=rq.length){sfx(2);app.innerHTML=`<div class="card"><div class="big">🤖⭐</div><h2>Robo is happy!</h2><p>You gave Robo the right orders. Now help your friends in a real chat.</p><button class="btn" onclick="l3(0)">Level 3 ➜</button></div>`;return}
 const [te,tl,se,sn,say,fx,ans,res]=rq[ri];
 const opts=shuffle([ans,...shuffle(ALL.filter(x=>x!==ans)).slice(0,3)]);
 app.innerHTML=`<div class="card"><h2>Order ${ri+1} of ${rq.length} 🤖</h2>
@@ -132,54 +174,43 @@ app.innerHTML=`<div class="card"><h2>Order ${ri+1} of ${rq.length} 🤖</h2>
 <div class="mute" style="text-align:center">🎯 Target: ${tl}</div>
 <div class="opts">${opts.map(x=>`<button class="opt">${x}</button>`).join("")}</div><div class="fb" id="fb"></div></div>`;
 document.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
-if(b.textContent===ans){b.classList.add("ok");$("#bl").textContent=ans;$("#fx").textContent=fx;$("#rb").classList.add("robo");addStars(2);$("#fb").textContent="✅ "+res;
+if(b.textContent===ans){sfx(true);b.classList.add("ok");$("#bl").textContent=ans;$("#fx").textContent=fx;$("#rb").classList.add("robo");addStars(2);$("#fb").textContent="✅ "+res;
 document.querySelectorAll(".opt").forEach(x=>x.onclick=null);ri++;setTimeout(l2r,1700)}
-else{b.classList.add("no");const r=$("#rb");r.textContent="🤖💥";r.classList.add("confused");$("#fb").textContent="Oops! Robo is confused. Look at the target again! 🎯";setTimeout(()=>{r.textContent="🤖";r.classList.remove("confused")},900)}})}
+else{sfx(false);b.classList.add("no");const r=$("#rb");r.textContent="🤖💥";r.classList.add("confused");$("#fb").textContent="Oops! Robo is confused. Look at the target again! 🎯";setTimeout(()=>{r.textContent="🤖";r.classList.remove("confused")},900)}})}
 
-/* LEVEL 3: communicative chat */
+/* LEVEL 3: chat (big + decorated) */
 const C=[
 ["👧","Ece","Where is Tom? I can’t find ___.","him","🔍"],
 ["👦","Ali","My little sister is sad. Can you help ___?","her","😢"],
 ["👩","Mum","Ali and I are outside. Please open the door for ___.","us","🚪"],
 ["👩‍🏫","Teacher","Here is your homework. Please read ___ now.","it","📘"],
 ["👦","Ali","The kids are very loud! I can’t hear ___.","them","📢"],
-["👧","Ece","I am lost! Please help ___!","me","🗺️"]];
+["👧","Ece","I am lost! Please help ___!","me","🗺️"],
+["👨","Dad","Grandma is waiting at the station. Let’s pick ___ up.","her","🚉"],
+["👦","Ali","Ece and I have a new game. Do you want to play with ___?","us","🎮"],
+["👧","Ece","Look at these kittens! Let’s give ___ some milk.","them","🐱"],
+["👩‍🏫","Teacher","Ali, the lesson starts now. I am waiting for ___ at the door.","you","⏰"],
+["👦","Ali","My brother has a new bike. He rides ___ to school.","it","🚲"],
+["👩","Mum","Grandpa is sick. Let’s call ___ tonight.","him","📞"]];
+let cq=[];
 function l3(i){
-head(3,"💬 Level 3 · Chat",70+i*4);
-if(i>=C.length){app.innerHTML=`<div class="card"><div class="big">💬🌟</div><h2>Your friends say thanks!</h2><p>Now let’s speak English for real.</p><button class="btn" onclick="l4(0)">Level 4 ➜</button></div>`;return}
-const [av,who,txt,ans,pic]=C[i];
+if(i===0)cq=shuffle(C);
+head("💬 Level 3 · Chat",68+i*(30/cq.length));
+if(i>=cq.length)return end();
+const [av,who,txt,ans,pic]=cq[i];
 const opts=shuffle([ans,...shuffle(ALL.filter(x=>x!==ans)).slice(0,3)]);
-app.innerHTML=`<div class="card"><h2>Message ${i+1} of ${C.length} ${pic}</h2>
-<div class="bubble"><div class="av">${av}</div><div class="say"><b>${who}:</b><br>${txt.replace("___",'<span class="blank" id="bl">?</span>')}</div></div>
-<p class="mute">Choose the best pronoun to reply:</p>
-<div class="opts">${opts.map(x=>`<button class="opt">${x}</button>`).join("")}</div><div class="fb" id="fb"></div></div>`;
+app.innerHTML=`<div class="card c3"><div class="ban"><span>💬 New message!</span><span>${i+1} / ${cq.length}</span></div>
+<div class="bubble"><div class="av">${av}</div><div class="say"><span class="who">${who}</span><br>${txt.replace("___",'<span class="blank" id="bl">?</span>')}</div></div>
+<div class="pic">${pic}</div><div class="ask">👇 Choose the best word</div>
+<div class="opts">${opts.map((x,k)=>`<button class="opt o${k}">${x}</button>`).join("")}</div><div class="fb" id="fb"></div><div class="deco">⭐✨🌈</div></div>`;
 document.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
-if(b.textContent===ans){b.classList.add("ok");$("#bl").textContent=ans;addStars(2);$("#fb").textContent="✅ "+who+": “Thank you!”";
-document.querySelectorAll(".opt").forEach(x=>x.onclick=null);setTimeout(()=>l3(i+1),1200)}
-else{b.classList.add("no");$("#fb").textContent="Think about who or what it is. 🤔"}})}
-
-/* LEVEL 4: speak with a partner */
-const S=[
-["🍕","Do you like pizza?","Yes, I like <mark>it</mark>."],
-["🐱","Do you like cats?","Yes, I like <mark>them</mark>."],
-["👩‍🏫","Do you like your English teacher?","Yes, I like <mark>her</mark>. / Yes, I like <mark>him</mark>."],
-["🎒","Who helps you with your homework?","My mum helps <mark>me</mark>."],
-["⚽","Do you play football with your friends?","Yes, I play with <mark>them</mark>."],
-["👨‍👩‍👧","Do you visit your grandparents?","Yes, we visit <mark>them</mark>. They love <mark>us</mark>!"]];
-function l4(i){
-head(4,"🗣️ Level 4 · Speak",90+i*1.5);
-if(i>=S.length)return end();
-const [e,q,a]=S[i];
-app.innerHTML=`<div class="card"><h2>Speaking card ${i+1} of ${S.length}</h2><div class="big">${e}</div>
-<p class="sent"><b>Partner A:</b> ${q}</p>
-<p class="mute">Partner B, answer with an object pronoun! Need help?</p>
-<div id="hint"><button class="btn alt" onclick="document.getElementById('hint').innerHTML='<p class=sent>${a.replace(/'/g,"&#39;").replace(/"/g,"&quot;")}</p>'">💡 Show a sample answer</button></div>
-<button class="btn" onclick="addStars(3);l4(${i+1})">We spoke! ⭐⭐⭐</button></div>
-<p class="mute">Swap roles on the next card.</p>`}
+if(b.textContent===ans){sfx(true);b.classList.add("ok");$("#bl").textContent=ans;addStars(2);$("#fb").textContent="✅ "+who+": “Thank you!” 🎉";
+document.querySelectorAll(".opt").forEach(x=>x.onclick=null);setTimeout(()=>l3(i+1),1300)}
+else{sfx(false);b.classList.add("no");$("#fb").textContent="Think about who or what it is. 🤔"}})}
 
 function end(){
-head(5,"🏆 Mission complete",100);
-const r=stars>=40?"Super Detective 🥇":stars>=28?"Great Detective 🥈":"Junior Detective 🥉";
+head("🏆 Mission complete",100);sfx(2);
+const r=stars>=50?"Super Detective 🥇":stars>=35?"Great Detective 🥈":"Junior Detective 🥉";
 app.innerHTML=`<div class="card"><div class="big">🏆</div><h1>Mission complete!</h1>
 <p class="sent">You are a <mark>${r}</mark></p><p>You collected <b>${stars} stars</b>.</p>
 <p><b>Remember:</b><br>I → <b>me</b> · you → <b>you</b> · he → <b>him</b> · she → <b>her</b><br>it → <b>it</b> · we → <b>us</b> · they → <b>them</b></p>

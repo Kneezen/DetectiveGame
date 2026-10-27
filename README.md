@@ -5,7 +5,8 @@ A classroom English game about object pronouns (me, you, him, her, it, us, them)
 - **Level 1 – Find the clues:** spot the pronoun that replaces the highlighted words, then discover the rule
 - **Level 2 – Robo Helper:** give Robo orders with the right pronoun
 - **Level 3 – Help your friends:** complete chat messages
-- **Level 4 – Talk with a partner:** speaking cards with sample answers
+
+Sound effects (with an on/off button) and large text for the classroom screen.
 
 ## How to play
 
